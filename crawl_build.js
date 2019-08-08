@@ -29,9 +29,9 @@ fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
       var $ = cheerio.load(html);
       //for each tag div with title as class in the body, we´ll track de following data
       entrou = false;
+      console.log('Looking at ' + thisPage);
       $('div.title').each(function(i, element){
         entrou = true;
-        console.log('Looking at ' + thisPage);
         //define a to be the children tag of div title, aka the tag 'a', where we will get the url and text of the post.
         var a = $(this).children();
         //get the post name
@@ -42,7 +42,6 @@ fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
         //this needs a condition because if the post has more than 1 page, he'll create
         //a new div classed as 'forum_pagination', so if this div exist, we'll need to skip it
         //by adding one more .next().
-
         //check if the div class forum_pagination exist on the next div of our parent div 
         if ($(this).parent().next().attr('class') == 'forum_pagination'){
           //if exist, we need to skip 1 more div, and fetch for the children(where the data is)
@@ -92,8 +91,10 @@ function callmeCarson(){
     callmeCarson();
   }).catch(()=>{
     //if the promise got reject, we stop everything.
-    console.log('\nfim das paginas!');
+    console.log('\nfim das páginas!');
   });
 }
 callmeCarson();
 });
+//https://www.pathofexile.com/forum/view-forum/patch-notes/page/
+//https://www.pathofexile.com/forum/view-forum/22/page/
