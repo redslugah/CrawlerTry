@@ -6,8 +6,6 @@ var fs = require('fs');
 const CreateFiles = fs.createWriteStream('./output.txt', {
       flags: 'a' //flags: 'a' preserved old data
 })
-//creating the url to be crawled
-const iniPage = 'https://www.pathofexile.com/forum/view-forum/patch-notes/page/1';
 //here the crawler starts after read the output file on the final of this script
 function requestPage(thisPage){
   //request to our url
@@ -47,6 +45,8 @@ function requestPage(thisPage){
           console.log('Registrando ' + metaData.title + ' na base!');
         }
       });
+    }else{
+      return;
     }
   });
 }
@@ -59,5 +59,10 @@ fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
   }
   //save the data of output in the var meuarquivo and call requestPage function, passing our url so we can start crawling
   meuarquivo = data;
-  requestPage(iniPage)
+  //setting 500 pages to crawl
+  for(var i = 1; i<500;i++){
+    //creating the url to be crawled
+    var iniPage = 'https://www.pathofexile.com/forum/view-forum/patch-notes/page/'+i;
+    requestPage(iniPage)
+  }
 });
