@@ -2,36 +2,19 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
-var Promise = require('promise');
-var i = 1;
-var entrou = false;
 //create the write stream so we can write on output.txt.
 const CreateFiles = fs.createWriteStream('./output.txt', {
       flags: 'a' //flags: 'a' preserved old data
 })
-//the var that we'll use to compare if the data is already on the file
-var meuarquivo = '';
-//read the file
-fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
-  if(err){
-    throw err;
-  }
-  //save the data of output in the var meuarquivo and call requestPage function, passing our url so we can start crawling
-  meuarquivo = data;
-  //setting 500 pages to crawl
-  //creating the url to be crawled
-  var iniPage = 'https://www.pathofexile.com/forum/view-forum/patch-notes/page/'+i;
-  function requestPage(thisPage){
-    return new Promise((resolve, reject)=>{
-    request(thisPage,(err, res, html) =>{
+//here the crawler starts after read the output file on the final of this script
+function requestPage(thisPage){
+  //request to our url
+  request(thisPage, (err, res, html) =>{
     if (!err && res.statusCode == 200){
       //if everything is ok, load html body in var $
       var $ = cheerio.load(html);
       //for each tag div with title as class in the body, we´ll track de following data
-      entrou = false;
       $('div.title').each(function(i, element){
-        entrou = true;
-        console.log('Looking at ' + thisPage);
         //define a to be the children tag of div title, aka the tag 'a', where we will get the real data.
         var a = $(this).children();
         //get the post name
@@ -53,33 +36,33 @@ fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
         //print data on cosole
         console.log(metaData);
         //if this data is already on the output file, we do not need to save it again.
-        if(meuarquivo.indexOf(metaData.link) > -1){
-          resolve(console.log("Informação já existe na base!"));
+        if(meuarquivo.indexOf(metaData.title) > -1){
+          console.log("Informação já existe na base!");
           //do nothing
         }else{
           //else, we need. Saving the file.
           CreateFiles.write(metaData.title + '\r\n' + metaData.link + '\r\n' + metaData.info + '\r\n\n');
-          resolve(console.log('Registrando ' + metaData.title + ' na base!'));
+          console.log('Registrando ' + metaData.title + ' na base!');
         }
       });
-      if (!entrou){
-        reject();
-      }
     }else{
-      console.log('deu ruim!');
+      return;
     }
   });
-});
 }
-function callmeCarson(){
-  var iniPage = 'https://www.pathofexile.com/forum/view-forum/patch-notes/page/'+i;
-  requestPage(iniPage).then(()=>{
-    i++; 
-    console.log('done with ' + iniPage);
-    callmeCarson();
-  }).catch(()=>{
-    console.log('\nfim das paginas!');
-  });
-}
-callmeCarson();
+//the var that we'll use to compare if the data is already on the file
+var meuarquivo = '';
+//read the file
+fs.readFile('./output.txt', 'utf-8' ,(err, data)=>{
+  if(err){
+    throw err;
+  }
+  //save the data of output in the var meuarquivo and call requestPage function, passing our url so we can start crawling
+  meuarquivo = data;
+  //setting 500 pages to crawl
+  for(var i = 1; i<500;i++){
+    //creating the url to be crawled
+    var iniPage = 'https://www.pathofexile.com/forum/view-forum/patch-notes/page/'+i;
+    requestPage(iniPage)
+  }
 });
