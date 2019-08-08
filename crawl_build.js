@@ -3,6 +3,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 var fs = require('fs');
 var Promise = require('promise');
+var finder = require('./find.js')
 //the var is for increment page number aside with the url
 var i = 1;
 //this var is for reject our promise if the page dos not have posts
@@ -91,7 +92,8 @@ function callmeCarson(){
     callmeCarson();
   }).catch(()=>{
     //if the promise got reject, we stop everything.
-    console.log('\nfim das páginas!');
+    console.log('\nfim das páginas, começando a gravação dos conteúdos!');
+    finder.finderMax();
   });
 }
 callmeCarson();
